@@ -7,12 +7,19 @@ class Node:
         self.children = []
         self.wins = 0
         self.visits = 0
+    
+    def is_fully_expanded(self):
+        return len(self.children) == len(self.board.getPossibleMoves())
 
-    def add_child(self, child_node): 
-        self.children.append(child_node)
-        child_node.parent = self
+    def best_child(self,):
+        return max(self.children, key=lambda child: child.get_uct_value())
 
-    def ucb1(self, c=1.4):  
-        if self.visits == 0:
+    def add_child(self, child):
+        self.children.append(child)
+
+    def get_uct_value(self, c=1.4):
+        if self.visits == 0 or self.parent is None or self.parent.visits == 0:
             return float('inf')
-        return (self.wins / self.visits) + c * math.sqrt(math.log(self.parent.visits) / self.visits)
+        exploitation = self.wins / self.visits
+        exploration = c * math.sqrt(math.log(self.parent.visits) / self.visits)
+        return exploitation + exploration

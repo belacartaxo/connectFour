@@ -51,27 +51,41 @@ class Board:
         self.y_coords[x] -= 1
         self.last_move_column = x
 
+
+
     # WIN CONDITION CHECK
+    # Função auxiliar para contar peças em uma direção
+    def count_in_direction(self, current_player, dx, dy, start_x, start_y):
+        count = 0
+        x_curr, y_curr = start_x + dx, start_y + dy
+        while (0 <= x_curr < self.board_width and 
+               0 <= y_curr < self.board_height and 
+               self.board[y_curr][x_curr] == current_player):
+            count += 1
+            x_curr += dx
+            y_curr += dy
+        return count
+    
     def is_won(self, x, y, current_player) -> bool:
-        directions = [(0, 1), (0, -1), (1, 0), (-1, 0),
-                     (1, 1), (-1, -1), (1, -1), (-1, 1)]
-        counts = {d: 0 for d in directions}
+        # Direções a verificar: vertical, horizontal, diagonais
+        directions = [((0, 1), (0, -1)),  # Vertical
+                    ((1, 0), (-1, 0)),  # Horizontal
+                    ((1, 1), (-1, -1)),  # Diagonal principal
+                    ((1, -1), (-1, 1))]  # Diagonal secundária
 
-        for dx, dy in counts:
-            x_curr, y_curr = x, y
-            while (0 <= x_curr + dx < self.board_width and 
-                   0 <= y_curr + dy < self.board_height):
-                if self.board[y_curr + dy][x_curr + dx] == current_player:
-                    counts[(dx, dy)] += 1
-                    x_curr += dx
-                    y_curr += dy
-                else:
-                    break
+        # Verifica cada par de direções opostas
+        for (dx1, dy1), (dx2, dy2) in directions:
+            total = (self.count_in_direction(current_player, dx1, dy1, x, y) + 
+                    self.count_in_direction(current_player, dx2, dy2, x, y) + 1)  # +1 para a peça inicial
+            if total >= 4:
+                return True
 
-        return ((counts[(0, 1)] + counts[(0, -1)] + 1) >= 4 or
-                (counts[(1, 0)] + counts[(-1, 0)] + 1) >= 4 or
-                (counts[(1, 1)] + counts[(-1, -1)] + 1) >= 4 or
-                (counts[(1, -1)] + counts[(-1, 1)] + 1) >= 4)
+        return False
+
+    def is_tie(self) -> bool:
+        return self.is_board_full() and not any(self.is_won(x, self.y_coords[x] + 1, p) 
+                                           for x in range(self.board_width) 
+                                           for p in ["X", "O"])
 
     def get_possible_moves(self, current_player):
         possible_moves = []
