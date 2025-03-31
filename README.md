@@ -55,7 +55,7 @@ The AI will use **Monte Carlo Tree Search (MCTS)** for adversarial search and **
 
 ## Team members
 - Hugo Duarte de Sousa
-- Isabela Britto Cartaxo
+- [Isabela Britto Cartaxo](https://github.com/belacartaxo)
 - Tiago Figueredo Silva
 
 ---
