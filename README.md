@@ -3,17 +3,15 @@
 ## Introduction
 This project is part of the **Artificial Intelligence 2024/2025** course assignment, focusing on adversarial search strategies and decision trees. The objective is to develop an AI capable of playing the game **Connect Four** against a human and another AI, using **Monte Carlo Tree Search (MCTS)** and **ID3-based Decision Trees**.
 
-## Table of Contents
-- [Project Overview](#project-overview)
-- [Game Rules](#game-rules)
-- [Implementation Details](#implementation-details)
-  - [Monte Carlo Tree Search (MCTS)](#monte-carlo-tree-search-mcts)
-  - [Decision Trees (ID3 Algorithm)](#decision-trees-id3-algorithm)
-- [Datasets](#datasets)
-- [How to Run](#how-to-run)
-- [Contributors](#contributors)
+## Game Rules
+- The game is played on a **7x6 grid**.
+- Players take turns dropping a token into a column.
+- The token falls to the lowest available row in that column.
+- A player wins by connecting **four** tokens in a row, column, or diagonal.
+- The game ends in a draw if the board is full with no winner.
 
-## Project Overview
+
+## Game Modes
 The implementation will support three game modes:
 1. **Human vs. Human**
 2. **Human vs. AI**
@@ -21,12 +19,11 @@ The implementation will support three game modes:
 
 The AI will use **Monte Carlo Tree Search (MCTS)** for adversarial search and **ID3 Decision Trees** for move prediction based on generated datasets.
 
-## Game Rules
-- The game is played on a **7x6 grid**.
-- Players take turns dropping a token into a column.
-- The token falls to the lowest available row in that column.
-- A player wins by connecting **four** tokens in a row, column, or diagonal.
-- The game ends in a draw if the board is full with no winner.
+## Project Structure and Code Documentation
+- `Connect4.py`- Main interface to run the game. Handles user interaction and game flow.
+- `Board.py`- Encapsulates all board mechanics for Connect Four.
+- `MCTS.py`- Core implementation of Monte Carlo Tree Search algorithm.
+- `Node.py`- Defines the structure for each node in the MCTS tree.
 
 ## Implementation Details
 ### Monte Carlo Tree Search (MCTS)
@@ -50,9 +47,11 @@ The AI will use **Monte Carlo Tree Search (MCTS)** for adversarial search and **
 
 ## How to Run
 1. Clone the repository.
-2. Install dependencies (only necessary libraries for data management and preprocessing are allowed).
-3. Run the Jupyter Notebook to execute the AI algorithms and visualize results.
-4. Play the game in different modes by selecting the desired option.
+2. Ensure Python is installed.
+3. Run the main game file (Connect4.py):
+  ```bash
+     python Connect4.py
+  ```
 
 ## Team members
 - Hugo Duarte de Sousa
