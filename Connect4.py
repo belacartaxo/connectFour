@@ -37,7 +37,7 @@ class Connect4Game:
 
         if game_mode in [2, 3]:
             initial_node = Node(deepcopy(self.board))
-            mcts = MCTS(initial_node, self.current_player, 1000)
+            mcts = MCTS(initial_node, self.current_player, 12000)
 
         while not self.board.is_board_full() and not is_game_over:
             self.board.print_board()

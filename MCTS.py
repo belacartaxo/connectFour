@@ -46,18 +46,16 @@ class MCTS:
 
         while not sim_board.is_board_full():
             legal_moves = [i for i in range(sim_board.board_width) if sim_board.is_legal_move(i)]
-            if not legal_moves:
-                break
             move = random.choice(legal_moves)
             sim_board.make_move(move, player)
 
-            if sim_board.is_won(move, sim_board.y_coords[move] + 1, player):
+            if sim_board.is_won(move, sim_board.y_coords[move], player):
                 return player  # Return the winner
 
             # Switch players
             player = "O" if player == "X" else "X"
 
-        return None  # It's a tie (draw)
+        return "."  # It's a tie (draw)
 
     def backpropagation(self, node, result):
         # Propagate the result of the simulation up the tree,
@@ -66,22 +64,32 @@ class MCTS:
             node.visits += 1
             if result == self.current_player:
                 node.wins += 1  # Win for the AI
-            elif result is None:
-                node.wins += 0.5  # Tie counts as half-win
+            elif result == ".":
+                node.wins += 0.2  # Tie counts as half-win
             # Move up to the parent node
             node = node.parent
 
     def best_move(self):
         # Main MCTS loop: run simulations, expand, simulate, backpropagate
+        visited = set()
         for _ in range(self.simulation_limit):
             leaf = self.selection()
             if not leaf.children:
-                self.expansion(leaf)
+                self.expansion(leaf) #POSSIBLE BOARDS
+
+            # if len(visited) != len(leaf.children):
+
+            # if leaf.children.board.to_tuple() not in visited:
+            #     visited.add(leaf.children.board.to_tuple())
+
+
+            for child in leaf.children:
+                result = self.simulation(child)
+                self.backpropagation(child, result)
+
             # Pick a random child to simulate if expansion created children
-            if leaf.children:
-                leaf = random.choice(leaf.children)
+            leaf = random.choice(leaf.children)  #Acho que aqui deve ser selection em vez de random
             result = self.simulation(leaf)
             self.backpropagation(leaf, result)
-
         # After all simulations, return the child with the highest win rate
         return self.root.best_child()

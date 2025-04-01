@@ -11,15 +11,15 @@ class Node:
     def is_fully_expanded(self):
         return len(self.children) == len(self.board.getPossibleMoves())
 
-    def best_child(self,):
+    def best_child(self):
         return max(self.children, key=lambda child: child.get_uct_value())
 
     def add_child(self, child):
         self.children.append(child)
 
-    def get_uct_value(self, c=1.4):
+    def get_uct_value(self, c=1):
         if self.visits == 0 or self.parent is None or self.parent.visits == 0:
             return float('inf')
-        exploitation = self.wins / self.visits
-        exploration = c * math.sqrt(math.log(self.parent.visits) / self.visits)
+        exploitation = self.wins / (self.visits + 1e-6)
+        exploration = c * math.sqrt(math.log(self.parent.visits + 1) / (self.visits + 1e-6))
         return exploitation + exploration

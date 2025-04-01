@@ -9,7 +9,7 @@ class Board:
         self.counter = 0
         self.board_width = 7
         self.board_height = 6
-        self.y_coords = {col: self.board_height - 1 for col in range(7)}
+        self.y_coords = {col: self.board_height - 1 for col in range(self.board_width)}
         self.invalid_move = False
         self.last_move_column = None
 
@@ -91,7 +91,7 @@ class Board:
         possible_moves = []
         for i in range(self.board_width):
             if self.is_legal_move(i):
-                new_board = deepcopy(self)
+                new_board = deepcopy(self)   # NOT USE DEEP COPY, RETURN POSSIBLE MOVES INSTEAD, I.E. [1,3,4,5,6]
                 new_board.make_move(i, current_player)
                 possible_moves.append(new_board)
         return possible_moves
