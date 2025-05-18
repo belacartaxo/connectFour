@@ -2,119 +2,144 @@ from copy import deepcopy
 from Node import Node
 
 class Board:
-    
     def __init__(self):
-        self.header = self.get_default_header()
-        self.board = self.get_default_board()
+        """
+        Initializes the Connect Four board.
+        - 6 rows x 7 columns represented by a list of lists.
+        - y_coords stores the next available row index for each column.
+        """
         self.counter = 0
         self.board_width = 7
         self.board_height = 6
-        self.y_coords = {col: self.board_height - 1 for col in range(7)}
-        self.invalid_move = False
+        self.board = [list(".......") for _ in range(self.board_height)]
+        self.y_coords = {col: self.board_height - 1 for col in range(self.board_width)}
         self.last_move_column = None
 
     def to_tuple(self):
+        """
+        Returns an immutable representation of the board (useful for hashing).
+        """
         return tuple(tuple(row) for row in self.board)
-    
-    def get_default_header(self):
-        return [1, 2, 3, 4, 5, 6, 7]
-    
-    def get_default_board(self):
-        return [list(".......") for _ in range(6)]
+
+    def get_simulation_board(self):
+        """
+        Placeholder for compatibility or extensions (e.g., for neural network input).
+        """
+        return []
 
     def print_board(self):
-        print("\n" + " ".join(map(str, self.header)))
+        """
+        Displays the board to the console.
+        """
+        print("\n" + " ".join(map(str, [1, 2, 3, 4, 5, 6, 7])))
         for row in self.board:
             print(" ".join(row))
         print()
 
     def is_empty(self, x, y) -> bool:
-        # Simply check if the current position is empty
+        """
+        Checks if a given cell is empty.
+        """
         return self.board[y][x] == "."
-    
+
     def is_board_full(self) -> bool:
+        """
+        Checks if the board is full (42 moves).
+        """
         return self.counter == 42
-    
+
     def is_legal_move(self, x) -> bool:
+        """
+        Checks if a move is legal:
+        - Column must be within bounds.
+        - Column must not be full.
+        """
         if self.is_board_full():
             return False
         if not 0 <= x < self.board_width:
-            return False  # OUT OF BOUNDS
+            return False
         if self.y_coords[x] < 0:
-            return False  # COLUMN IS FULL
+            return False
         return self.is_empty(x, self.y_coords[x])
 
     def make_move(self, x, current_player):
+        """
+        Places a piece from the current player in the specified column.
+        Updates the board, move counter, and last played column.
+        """
         y = self.y_coords[x]
-        self.board[y][x] = current_player  # makes the move
-        self.counter += 1  # increase the counter
+        self.board[y][x] = current_player
+        self.counter += 1
         self.y_coords[x] -= 1
         self.last_move_column = x
 
-
-
-    # WIN CONDITION CHECK
-    # Função auxiliar para contar peças em uma direção
-    def count_in_direction(self, current_player, dx, dy, start_x, start_y):
+    def count_in_direction(self, current_player, dx, dy, x, y):
+        """
+        Counts how many consecutive pieces exist in a given direction from (x, y).
+        """
         count = 0
-        x_curr, y_curr = start_x + dx, start_y + dy
-        while (0 <= x_curr < self.board_width and 
-               0 <= y_curr < self.board_height and 
-               self.board[y_curr][x_curr] == current_player):
+        while (0 <= x + dx < self.board_width and 
+               0 <= y + dy < self.board_height and 
+               self.board[y + dy][x + dx] == current_player):
+            x += dx
+            y += dy
             count += 1
-            x_curr += dx
-            y_curr += dy
         return count
-    
-    def is_won(self, x, y, current_player) -> bool:
-        # Direções a verificar: vertical, horizontal, diagonais
-        directions = [((0, 1), (0, -1)),  # Vertical
-                    ((1, 0), (-1, 0)),  # Horizontal
-                    ((1, 1), (-1, -1)),  # Diagonal principal
-                    ((1, -1), (-1, 1))]  # Diagonal secundária
 
-        # Verifica cada par de direções opostas
-        for (dx1, dy1), (dx2, dy2) in directions:
-            total = (self.count_in_direction(current_player, dx1, dy1, x, y) + 
-                    self.count_in_direction(current_player, dx2, dy2, x, y) + 1)  # +1 para a peça inicial
+    def is_won(self, x, current_player) -> bool:
+        """
+        Checks whether the last move in column x resulted in a win.
+        """
+        directions = [((0, 1), (0, -1)),      # Horizontal
+                      ((1, 0), (-1, 0)),      # Vertical
+                      ((1, 1), (-1, -1)),     # Main diagonal
+                      ((1, -1), (-1, 1))]     # Anti-diagonal
+
+        y = self.y_coords[x] + 1  # Find the row where the last move was placed
+        if y is None:
+            return False
+        for (dy1, dx1), (dy2, dx2) in directions:
+            total = (self.count_in_direction(current_player, dx1, dy1, x, y) +
+                     self.count_in_direction(current_player, dx2, dy2, x, y) + 1)
             if total >= 4:
                 return True
+        return False
 
+    def has_winner(self) -> bool:
+        """
+        Scans the board to detect if there is a winning sequence for any player.
+        Used in end-of-game checks (e.g., for tie).
+        """
+        for y in range(self.board_height):
+            for x in range(self.board_width):
+                if self.board[y][x] in ["X", "O"]:
+                    current_player = self.board[y][x]
+                    for (dx1, dy1), (dx2, dy2) in [((0, 1), (0, -1)),
+                                                  ((1, 0), (-1, 0)),
+                                                  ((1, 1), (-1, -1)),
+                                                  ((1, -1), (-1, 1))]:
+                        count = 1
+                        count += self.count_in_direction(current_player, dx1, dy1, x, y)
+                        count += self.count_in_direction(current_player, dx2, dy2, x, y)
+                        if count >= 4:
+                            return True
         return False
 
     def is_tie(self) -> bool:
-        return self.is_board_full() and not any(self.is_won(x, self.y_coords[x] + 1, p) 
-                                           for x in range(self.board_width) 
-                                           for p in ["X", "O"])
+        """
+        Returns True if the board is full and there is no winner.
+        """
+        return self.is_board_full() and not self.has_winner()
 
     def get_possible_moves(self, current_player):
-        possible_moves = []
+        """
+        Returns a list of possible future board states given the current player's move.
+        Useful for MCTS simulation.
+        """
+        possible_boards = []
         for i in range(self.board_width):
             if self.is_legal_move(i):
                 new_board = deepcopy(self)
                 new_board.make_move(i, current_player)
-                possible_moves.append(new_board)
-        return possible_moves
-
-    # def test(self):  # Prototype to simulate moves
-    #     stack = []
-    #     initial = Node(self)
-    #     stack.append(initial)
-    #     visited = set()
-        
-    #     while stack:
-    #         current_node = stack.pop() 
-    #         current_board = current_node.board
-
-    #         if current_board.is_won():
-    #             print("Game finished")
-    #             break
-
-    #         for possible_board in current_board.get_possible_moves("X"):  # Iterate all possible moves for the board
-    #             board_state = possible_board.to_tuple()  # Convert board to tuple for visited tracking
-    #             if board_state not in visited:
-    #                 board_copy = deepcopy(possible_board)
-    #                 new_node = Node(board_copy, current_node)  # Create new node
-    #                 current_node.add_child(new_node)  # Add new node to current node's children
-    #                 stack.append(new_node)  # Add new node to stack
-    #                 visited.add(board_state)  # Add tuple to visited
+                possible_boards.append(new_board)
+        return possible_boards
