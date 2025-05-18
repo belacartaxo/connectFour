@@ -1,56 +1,56 @@
 import Connect4 as C4
 import numpy as np
-import openpyxl 
+import csv
+import os
 
+def run_simulation(simulation_limit):
+    """
+    Executes a single simulation of a Connect Four match using two AI agents (MCTS).
 
-workbook = openpyxl.load_workbook("FILE_NAME.XLSX")
-worksheet = workbook.active
-
-
-# Simulate n games
-# save the final board into a 1D array and the winner. 
-# I have no clue how to determine moves in the middle, so that is something to think about
-
-# EM SUMA, ONLY STORE THE FINAL BAORD AND THE WINNER, possibly make new functions? 
-# Research on Python excel magic
-# should be done by today
-
-
-
-
-
-def run_simulation():
-    boardStates, playerTurns, optimalMoves = C4.random_vs_random()   # RETURNS 3 lists, all the baords across the simulated game, player turns and respective optimal move
-    
+    Returns:
+    - boardStates: A list of 1D arrays representing the state of the board at each move
+    - playerTurns: A list indicating which player ("X" or "O") made each move
+    - optimalMoves: A list of the moves chosen by the agents at each step
+    """
+    boardStates, playerTurns, optimalMoves = C4.ai_vs_ai_simulation_generator(simulation_limit, simulation_limit)
     return boardStates, playerTurns, optimalMoves
 
+def generate_db_csv(folder="datasets", filename="connect4_dataset.csv", iterations=150, append=True, simulation_limit=10000):
+    """
+    Generates a dataset by simulating multiple Connect Four games and logging the results
+    into a CSV file inside a specific folder.
 
-def generate_db(iterations=150, last_row=1):  # last_row defualt = 1, if last row written in the dataset is n, set last_row = n
-    last_updated_row = 0
-    for i in range(iterations):
-        print(f"Initiating simulation {i + 1}:")
-        boardStates, playerTurns, optimalMoves = run_simulation()
+    Parameters:
+    - folder: Folder to store the CSV file (e.g., "datasets" or "data")
+    - filename: Name of the CSV file
+    - iterations: Number of games to simulate
+    - append: Whether to append to the existing file or overwrite it
+    """
+    os.makedirs(folder, exist_ok=True)  # Create folder if it doesn't exist
+    filepath = os.path.join(folder, filename)
+    
+    file_exists = os.path.isfile(filepath)
+    mode = 'a' if append else 'w'
 
-        print("Writting Data...")
-        # Since each of the board size varries,
-        allocate = len(boardStates)
-        for j in range(allocate):
-            for k in range(1, 43):
-                worksheet.cell(row=j + 1 + last_row + last_updated_row, column=k, value=f"{boardStates[j][k - 1]}")
-            worksheet.cell(row=j + 1 + last_row + last_updated_row, column=43, value=f"{playerTurns[j]}")
-            worksheet.cell(row=j + 1 + last_row + last_updated_row, column=44, value=optimalMoves[j])
-            workbook.save("FILE_NAME.XLSX")
+    with open(filepath, mode, newline='') as csvfile:
+        writer = csv.writer(csvfile)
 
-        last_updated_row += allocate
+        # Write header if file is new or being overwritten
+        if not file_exists or not append:
+            header = [f"cell_{i+1}" for i in range(42)] + ["player_turn", "chosen_move"]
+            writer.writerow(header)
 
+        for i in range(iterations):
+            print(f"Initiating simulation {i + 1}:")
+            boardStates, playerTurns, optimalMoves = run_simulation(simulation_limit)
 
+            for state, player, move in zip(boardStates, playerTurns, optimalMoves):
+                row = list(state) + [player, move]
+                writer.writerow(row)
 
+            print(f"Simulation {i + 1} completed!")
+            print(f"Progress: { round(((i + 1)/iterations) * 100, 2)}%")
+            print("")
 
-        print(f"simulation {i + 1} has completed!")
-        print("Upload completed")
-        print(f"Progression { round(((i + 1)/iterations) * 100, 2)}%")
-        print("")
-
-
-generate_db(last_row=8466)
-
+# Generate and save in "datasets/connect4_dataset.csv"
+generate_db_csv(folder="datasets", filename="connect4_dataset.csv", iterations=500, append=True, simulation_limit=5000)

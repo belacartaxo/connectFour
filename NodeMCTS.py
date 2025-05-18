@@ -1,6 +1,6 @@
 import math
 
-class Node:
+class NodeMCTS:
     def __init__(self, board, parent=None):
         """
         Initializes a node representing a game state in the MCTS tree.

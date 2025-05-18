@@ -1,10 +1,50 @@
-import random
 import time
-import numpy as np
-from copy import deepcopy
 from Board import Board
 from MCTS import MCTS
 from Node import Node
+import numpy as np
+
+def ai_vs_ai_simulation_generator(x_simulation_limit=10000, o_simulation_limit=10000):
+    """
+    Simulates a Connect Four game between two AI agents using MCTS with configurable simulation limits.
+
+    Returns:
+    - boardStates: A list of flattened 1D arrays representing the state of the board at each move
+    - playerTurns: A list of strings ("X" or "O") indicating the player who made each move
+    - optimalMoves: A list of integers indicating the column (1-based) chosen at each move
+    """
+    game = Board()
+    players = ["X", "O"]
+    current_index = 0
+    game_over = False
+
+    boardStates = []
+    playerTurns = []
+    optimalMoves = []
+
+    while not game.is_board_full() and not game_over:
+        current_player = players[current_index]
+
+        sim_limit = x_simulation_limit if current_player == "X" else o_simulation_limit
+        root = Node(game, None)
+        mcts = MCTS(root, current_player, sim_limit)
+        start = time.time()
+        best_node = mcts.best_move()
+        move = best_node.board.last_move_column
+        end = time.time()
+
+        # Register move and state
+        flat_board = np.array(game.board).flatten().tolist()
+        boardStates.append(flat_board)
+        playerTurns.append(current_player)
+        optimalMoves.append(move + 1)  # 1-based index for readability
+
+        game.make_move(move, current_player)
+
+        game_over = game.is_won(move, current_player)
+        current_index = 1 - current_index
+
+    return boardStates, playerTurns, optimalMoves
 
 def human_play(game, current_player):
     """
@@ -124,13 +164,13 @@ def ai_vs_ai(x_simulation_limit=10000, o_simulation_limit=10000):
         game.print_board()
         print(f"It is now {current_player}'s turn!")
 
+        sim_limit = x_simulation_limit if current_player == "X" else o_simulation_limit
         root = Node(game, None)
-        mcts = MCTS(root, current_player)
+        mcts = MCTS(root, current_player, sim_limit)
         start = time.time()
         best_node = mcts.best_move()
         move = best_node.board.last_move_column
         game.make_move(move, current_player)
-        print(move)
         end = time.time()
 
         print(f"{current_player} chose column: {move + 1}\nTime taken: {end - start:.2f}s")

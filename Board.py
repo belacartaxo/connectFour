@@ -1,5 +1,4 @@
 from copy import deepcopy
-from Node import Node
 
 class Board:
     def __init__(self):

@@ -1,6 +1,6 @@
 import random
 from copy import deepcopy
-from Node import Node
+from NodeMCTS import NodeMCTS
 
 class MCTS:
     def __init__(self, initial_state, current_player, simulation_limit=10000):
@@ -32,7 +32,7 @@ class MCTS:
         """
         current_player = self.current_player
         for board in node.board.get_possible_moves(current_player):
-            new_node = Node(board, parent=node)
+            new_node = NodeMCTS(board, parent=node)
             node.add_child(new_node)
 
     def simulation(self, node):
@@ -68,7 +68,7 @@ class MCTS:
                 node.wins += 0.5
             node = node.parent
 
-    def check_for_win(self, leaf) -> Node:
+    def check_for_win(self, leaf) -> NodeMCTS:
         """
         Checks if there is an immediate winning move for the current player.
         If found, returns a new node representing that winning move.
@@ -79,7 +79,7 @@ class MCTS:
             simulated_board = deepcopy(leaf.board)
             simulated_board.make_move(i, self.current_player)
             if simulated_board.is_won(i, self.current_player):
-                return Node(simulated_board, parent=leaf)
+                return NodeMCTS(simulated_board, parent=leaf)
 
         return None
 
