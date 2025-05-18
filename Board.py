@@ -139,7 +139,7 @@ class Board:
         possible_boards = []
         for i in range(self.board_width):
             if self.is_legal_move(i):
-                new_board = deepcopy(self)
+                new_board = deepcopy(self)   # NOT USE DEEP COPY, RETURN POSSIBLE MOVES INSTEAD, I.E. [1,3,4,5,6]
                 new_board.make_move(i, current_player)
                 possible_boards.append(new_board)
         return possible_boards

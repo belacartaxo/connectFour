@@ -3,6 +3,14 @@
 ## Introduction
 This project is part of the **Artificial Intelligence 2024/2025** course assignment, focusing on adversarial search strategies and decision trees. The objective is to develop an AI capable of playing the game **Connect Four** against a human and another AI, using **Monte Carlo Tree Search (MCTS)** and **ID3-based Decision Trees**.
 
+## How to Run
+1. Clone the repository.
+2. Ensure Python is installed.
+3. Run the main game file (Connect4.py):
+  ```bash
+     python Connect4.py
+  ```
+
 ## Game Rules
 - The game is played on a **7x6 grid**.
 - Players take turns dropping a token into a column.
@@ -45,17 +53,9 @@ The AI will use **Monte Carlo Tree Search (MCTS)** for adversarial search and **
   - Contains game states and corresponding best moves suggested by MCTS.
   - Used to train the final decision tree for move prediction.
 
-## How to Run
-1. Clone the repository.
-2. Ensure Python is installed.
-3. Run the main game file (Connect4.py):
-  ```bash
-     python Connect4.py
-  ```
-
 ## Team members
 - Hugo Duarte de Sousa
-- Isabela Britto Cartaxo
+- [Isabela Britto Cartaxo](https://github.com/belacartaxo)
 - Tiago Figueredo Silva
 
 ---
